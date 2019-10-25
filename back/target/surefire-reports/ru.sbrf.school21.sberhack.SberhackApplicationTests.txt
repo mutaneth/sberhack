@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ru.sbrf.school21.sberhack.SberhackApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.739 s - in ru.sbrf.school21.sberhack.SberhackApplicationTests
