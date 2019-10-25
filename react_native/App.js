@@ -12,80 +12,28 @@ import Icon from 'react-native-vector-icons/Ionicons';
 Icon.loadFont();
 import Modal from 'react-native-modal';
 import Swiper from 'react-native-swiper';
-// import ava from './images/ava.png';
 import advice from './images/advice.png';
+import data from './data';
 
 const App = () => {
+  // const token = {
+  //   token: '9JdgzMbMvwSNu8bQN6fNRPEVzWUxzeC0',
+  //   secret: 'Np85e0',
+  // };
+
   const [user, setUser] = useState({
     id: 0,
     name: 'Максим',
     secondName: 'Иванов',
     level: '12',
   });
-  const [modalProject, setModalProject] = useState(false);
+  const [modalProject, setModalProject] = useState({modal: false, project: 0});
   const [modalAdvice, setModalAdvice] = useState(false);
-  const [modalTask, setModalTask] = useState(false);
-  const projects = [
-    {
-      sprint: {
-        originBoardId: 5,
-        goal: '',
-        endDate: '2019-11-07T09:50:10.000Z',
-        name: 'Доска Спринт 2',
-        self: 'https://hacathon.atlassian.net/rest/agile/1.0/sprint/2',
-        id: 2,
-        state: 'active',
-        startDate: '2019-10-24T09:50:12.487Z',
-      },
-      project: {
-        projects: [
-          {
-            name: 'SCRUM1',
-            id: '10003',
-          },
-        ],
-        count: 1,
-      },
-      issues: {
-        todo: [
-          {
-            sprint: 2,
-            name: 'SCRUM-4',
-            id: '10013',
-            status: 'todo',
-          },
-          {
-            sprint: 2,
-            name: 'SCRUM-5',
-            id: '10014',
-            status: 'todo',
-          },
-        ],
-        Done: [
-          {
-            sprint: 2,
-            name: 'SCRUM-2',
-            id: '10011',
-            status: 'Done',
-          },
-        ],
-        INPROGRESS: [
-          {
-            sprint: 2,
-            name: 'SCRUM-7',
-            id: '10016',
-            status: 'INPROGRESS',
-          },
-          {
-            sprint: 2,
-            name: 'SCRUM-3',
-            id: '10012',
-            status: 'INPROGRESS',
-          },
-        ],
-      },
-    },
-  ];
+  const [modalTask, setModalTask] = useState({
+    modal: false,
+    task: 0,
+    type: 'INPROGRESS',
+  });
 
   return (
     <SafeAreaView style={styles.appContainer}>
@@ -108,7 +56,7 @@ const App = () => {
         <SafeAreaView style={styles.ModalProjectContainer}>
           <TouchableOpacity
             onPress={() => {
-              setModalProject({modal: false});
+              setModalProject({...modalProject, modal: false});
             }}>
             <Icon name={'ios-arrow-round-back'} size={40} />
           </TouchableOpacity>
@@ -118,7 +66,7 @@ const App = () => {
               {/*  {projects[0].sprint.endDate}*/}
               {/*</Text>*/}
               <Text style={styles.swiperProjectHeader}>
-                {projects[0].sprint.name}
+                {data.boards[modalProject.project].sprint.name}
               </Text>
               {/*<Text style={styles.ModalProjectTextLeftRight}>*/}
               {/*  {projects[0].project.name}*/}
@@ -127,66 +75,117 @@ const App = () => {
             <View style={styles.ModalProjectContent}>
               {/*<Text style={styles.swiperProjectHeader}>{projects[0].name}</Text>*/}
               {/*<Text>Зазачи</Text>*/}
-              {modalTask === false ? (
+              {modalTask.modal === false ? (
                 <View style={{width: '100%', height: '100%'}}>
-                  <Text style={styles.ModalProjectTextTaskHeader}>{`ToDo [${
-                    projects[0].issues.todo.length
-                  }]`}</Text>
-                  <ScrollView style={styles.ModalProjectScrollContainer}>
-                    {projects[0].issues.todo.map(item => {
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          onPress={() => setModalTask(true)}>
-                          <Text style={styles.ModalProjectTextTask}>
-                            {`- ${item.name}`}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                  <Text
-                    style={styles.ModalProjectTextTaskHeader}>{`In progress [${
-                    projects[0].issues.INPROGRESS.length
-                  }]`}</Text>
-                  <ScrollView style={styles.ModalProjectScrollContainer}>
-                    {projects[0].issues.INPROGRESS.map(item => {
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          onPress={() => setModalTask(true)}>
-                          <Text style={styles.ModalProjectTextTask}>
-                            {`- ${item.name}`}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                  <Text style={styles.ModalProjectTextTaskHeader}>{`Done [${
-                    projects[0].issues.Done.length
-                  }]`}</Text>
-                  <ScrollView style={styles.ModalProjectScrollContainer}>
-                    {projects[0].issues.Done.map(item => {
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          onPress={() => setModalTask(true)}>
-                          <Text style={styles.ModalProjectTextTask}>
-                            {`- ${item.name}`}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
+                  {data.boards[modalProject.project].issues.todo ? (
+                    <View>
+                      <Text style={styles.ModalProjectTextTaskHeader}>{`ToDo [${
+                        data.boards[modalProject.project].issues.todo.length
+                      }]`}</Text>
+                      <ScrollView style={styles.ModalProjectScrollContainer}>
+                        {data.boards[modalProject.project].issues.todo.map(
+                          (item, ind) => {
+                            return (
+                              <TouchableOpacity
+                                key={item.id}
+                                onPress={() =>
+                                  setModalTask({
+                                    ...modalTask,
+                                    modal: true,
+                                    task: ind,
+                                    type: 'todo',
+                                  })
+                                }>
+                                <Text style={styles.ModalProjectTextTask}>
+                                  {`- ${item.name}`}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          },
+                        )}
+                      </ScrollView>
+                    </View>
+                  ) : null}
+                  {data.boards[modalProject.project].issues.INPROGRESS ? (
+                    <View>
+                      <Text
+                        style={
+                          styles.ModalProjectTextTaskHeader
+                        }>{`In progress [${
+                        data.boards[modalProject.project].issues.INPROGRESS
+                          .length
+                      }]`}</Text>
+                      <ScrollView style={styles.ModalProjectScrollContainer}>
+                        {data.boards[
+                          modalProject.project
+                        ].issues.INPROGRESS.map((item, index) => {
+                          return (
+                            <TouchableOpacity
+                              key={item.id}
+                              onPress={() =>
+                                setModalTask({
+                                  ...modalTask,
+                                  modal: true,
+                                  task: index,
+                                  type: 'INPROGRESS',
+                                })
+                              }>
+                              <Text style={styles.ModalProjectTextTask}>
+                                {`- ${item.name}`}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </ScrollView>
+                    </View>
+                  ) : null}
+                  {data.boards[modalProject.project].issues.Done ? (
+                    <View>
+                      <Text style={styles.ModalProjectTextTaskHeader}>{`Done [${
+                        data.boards[modalProject.project].issues.Done.length
+                      }]`}</Text>
+                      <ScrollView style={styles.ModalProjectScrollContainer}>
+                        {data.boards[modalProject.project].issues.Done.map(
+                          (item, index) => {
+                            return (
+                              <TouchableOpacity
+                                key={item.id}
+                                onPress={() =>
+                                  setModalTask({
+                                    ...modalTask,
+                                    modal: true,
+                                    task: index,
+                                    type: 'INPROGRESS',
+                                  })
+                                }>
+                                <Text style={styles.ModalProjectTextTask}>
+                                  {`- ${item.name}`}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          },
+                        )}
+                      </ScrollView>
+                    </View>
+                  ) : null}
                 </View>
               ) : (
                 <View style={styles.OneTaskContainer}>
                   <Text style={styles.ModalProjectTextLeftRight}>
-                    Описание задачиииии
+                    {
+                      data.boards[modalProject.project].issues[
+                        `${modalTask.type}`
+                      ][modalTask.task].description
+                    }
                   </Text>
                   <TouchableOpacity
                     style={styles.TaskCloseButton}
-                    onPress={() => setModalTask(false)}>
+                    onPress={() =>
+                      setModalTask({
+                        ...modalTask,
+                        modal: false,
+                      })
+                    }>
                     <Text style={styles.ModalProjectTextLeftRight}>
                       Закрыть
                     </Text>
@@ -199,7 +198,7 @@ const App = () => {
       </Modal>
 
       <Modal
-        isVisible={modalAdvice}
+        isVisible={modalAdvice.modal}
         hasBackdrop={true}
         backdropColor={'#000'}
         backdropOpacity={0.45}>
@@ -211,9 +210,17 @@ const App = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={styles.AdvicesText}>
-              ljrfjlefjq;efr kweuf;hqw w;eufiqw w;iuefqw oweuf
-            </Text>
+            {modalAdvice.id === 0 ? (
+              <Text style={styles.AdvicesText}>
+                Максим, на тебя назначено уже 8 задач, но ни одну ты не взял в
+                работу, посмотри пожалуйста на них повнимательнее :)
+              </Text>
+            ) : (
+              <Text style={styles.AdvicesText}>
+                Максим, твоя продуктивность за последние две недели немного
+                упала, скажи пожалуйста, тебя что-то отвлекает? Я могу помочь?
+              </Text>
+            )}
           </View>
           <TouchableOpacity
             style={[styles.TaskCloseButton, {alignSelf: 'center'}]}
@@ -225,28 +232,33 @@ const App = () => {
 
       <View style={styles.swiperForProjects}>
         <Swiper>
-          {projects.map(item => {
+          {data.boards.map((item, inde) => {
             return (
               <TouchableOpacity
                 key={item.id}
                 style={styles.swiperProjectOut}
-                onPress={() =>
-                  setModalProject({modal: true, project: item.id})
-                }>
+                onPress={() => setModalProject({modal: true, project: inde})}>
                 <Text style={styles.swiperProjectHeader}>
                   {item.sprint.name}
                 </Text>
                 <View style={styles.swiperProject}>
-                  <Text style={styles.sprintTime}>{item.sprint.endDate}</Text>
-                  <Text style={styles.nameText}>
-                    {item.project.projects[0].name}
-                  </Text>
-                  <Text style={styles.taskText}>{`In progress: ${
-                    item.issues.INPROGRESS.length
-                  }`}</Text>
-                  <Text style={styles.taskText}>{`To-Do: ${
-                    item.issues.todo.length
-                  }`}</Text>
+                  {/*<Text style={styles.sprintTime}>{item.sprint.endDate}</Text>*/}
+                  <Text style={styles.nameText}>{item.project.name}</Text>
+                  {item.issues.todo ? (
+                    <Text style={styles.taskText}>{`To-Do: ${
+                      item.issues.todo.length
+                    }`}</Text>
+                  ) : null}
+                  {item.issues.INPROGRESS ? (
+                    <Text style={styles.taskText}>{`In progress: ${
+                      item.issues.INPROGRESS.length
+                    }`}</Text>
+                  ) : null}
+                  {item.issues.Done ? (
+                    <Text style={styles.taskText}>{`Done: ${
+                      item.issues.Done.length
+                    }`}</Text>
+                  ) : null}
                 </View>
               </TouchableOpacity>
             );
@@ -258,37 +270,37 @@ const App = () => {
           <View style={styles.AdvicesView}>
             <TouchableOpacity
               style={styles.swiperAdvice}
-              onPress={() => setModalAdvice(true)}>
+              onPress={() => setModalAdvice({modal: true, id: 0})}>
               <Image source={advice} style={styles.AdvicesImage} />
               <Text style={styles.AdvicesText}>Советик</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.swiperAdvice}
-              onPress={() => setModalAdvice(true)}>
+              onPress={() => setModalAdvice({modal: true, id: 1})}>
               <Image source={advice} style={styles.AdvicesImage} />
               <Text style={styles.AdvicesText}>Советик</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.swiperAdvice}
-              onPress={() => setModalAdvice(true)}>
-              <Image source={advice} style={styles.AdvicesImage} />
-              <Text style={styles.AdvicesText}>Советик</Text>
-            </TouchableOpacity>
+            {/*<TouchableOpacity*/}
+            {/*  style={styles.swiperAdvice}*/}
+            {/*  onPress={() => setModalAdvice(true)}>*/}
+            {/*  <Image source={advice} style={styles.AdvicesImage} />*/}
+            {/*  <Text style={styles.AdvicesText}>Советик</Text>*/}
+            {/*</TouchableOpacity>*/}
           </View>
-          <View style={styles.AdvicesView}>
-            <TouchableOpacity
-              style={styles.swiperAdvice}
-              onPress={() => setModalAdvice(true)}>
-              <Image source={advice} style={styles.AdvicesImage} />
-              <Text style={styles.AdvicesText}>Советик</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.swiperAdvice}
-              onPress={() => setModalAdvice(true)}>
-              <Image source={advice} style={styles.AdvicesImage} />
-              <Text style={styles.AdvicesText}>Советик</Text>
-            </TouchableOpacity>
-          </View>
+          {/*<View style={styles.AdvicesView}>*/}
+          {/*  <TouchableOpacity*/}
+          {/*    style={styles.swiperAdvice}*/}
+          {/*    onPress={() => setModalAdvice(true)}>*/}
+          {/*    <Image source={advice} style={styles.AdvicesImage} />*/}
+          {/*    <Text style={styles.AdvicesText}>Советик</Text>*/}
+          {/*  </TouchableOpacity>*/}
+          {/*  <TouchableOpacity*/}
+          {/*    style={styles.swiperAdvice}*/}
+          {/*    onPress={() => setModalAdvice(true)}>*/}
+          {/*    <Image source={advice} style={styles.AdvicesImage} />*/}
+          {/*    <Text style={styles.AdvicesText}>Советик</Text>*/}
+          {/*  </TouchableOpacity>*/}
+          {/*</View>*/}
         </Swiper>
       </View>
     </SafeAreaView>
@@ -348,7 +360,8 @@ const styles = StyleSheet.create({
   },
   swiperProject: {
     width: '100%',
-    height: '94%',
+    height: '92%',
+    marginTop: '3.4%',
     // justifyContent: 'center',
     backgroundColor: '#F0F9FF',
     borderWidth: 1,
